@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPIKES 2026 Registration</title>
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: #f0f2f5;
+        margin: 0;
+        padding: 0;
+    }
+    header {
+        background: #1abc9c;
+        color: white;
+        text-align: center;
+        padding: 20px;
+    }
+    .container {
+        max-width: 800px;
+        margin: 20px auto;
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    h2 {
+        color: #1abc9c;
+    }
+    form label {
+        display: block;
+        margin-top: 15px;
+        font-weight: bold;
+    }
+    form input, form select, form textarea {
+        width: 100%;
+        padding: 10px;
+        margin-top: 5px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+    }
+    button {
+        background: #1abc9c;
+        color: white;
+        padding: 15px 25px;
+        border: none;
+        border-radius: 5px;
+        margin-top: 20px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: 0.3s;
+    }
+    button:hover {
+        background: #16a085;
+    }
+    .event-list label {
+        display: block;
+        margin: 10px 0;
+    }
+    .payment input[type="radio"] {
+        margin-right: 10px;
+    }
+    .qr-container {
+        display: none;
+        margin-top: 10px;
+    }
+    @media(max-width: 600px){
+        .container{
+            padding: 20px;
+        }
+        button{
+            width: 100%;
+        }
+    }
+</style>
+</head>
+<body>
+
+<!-- PAGE 1 -->
+<div class="container" id="page1">
+    <header>
+        <h1>SPIKES 2026</h1>
+    </header>
+    <h2>Introduction</h2>
+    <p>Welcome to SPIKES 2026! Join us for a festival of talent, creativity, and innovation. Participate in cultural, literary, and technical events and showcase your skills.</p>
+
+    <h2>Event Details</h2>
+    <p><strong>Venue:</strong> ABC College Auditorium</p>
+    <p><strong>Date:</strong> 15th - 17th December 2026</p>
+
+    <h2>Event Brochure</h2>
+    <p>Download our brochure <a href="brochure.pdf" target="_blank">here</a>.</p>
+
+    <h2>Participant Details</h2>
+    <form id="formPage1">
+        <label for="name">Full Name</label>
+        <input type="text" id="name" name="name" required>
+
+        <label for="college">College Name</label>
+        <input type="text" id="college" name="college" required>
+
+        <label for="email">Email Address</label>
+        <input type="email" id="email" name="email" required>
+
+        <label for="mobile">Mobile Number</label>
+        <input type="tel" id="mobile" name="mobile" required pattern="[0-9]{10}" placeholder="10-digit number">
+
+        <button type="button" onclick="goToPage2()">Next</button>
+    </form>
+</div>
+
+<!-- PAGE 2 -->
+<div class="container" id="page2" style="display:none;">
+    <header>
+        <h1>Event Selection & Payment</h1>
+    </header>
+    <form id="formPage2">
+        <h2>Select Events</h2>
+        <div class="event-list">
+            <label><input type="checkbox" name="events" value="Articles & Picture Arts" data-fee="100"> Articles & Picture Arts - ₹100</label>
+            <label><input type="checkbox" name="events" value="Short Stories" data-fee="80"> Short Stories - ₹80</label>
+            <label><input type="checkbox" name="events" value="Poems" data-fee="50"> Poems - ₹50</label>
+            <label><input type="checkbox" name="events" value="Comics" data-fee="120"> Comics (Written & Drawn) - ₹120</label>
+            <label><input type="checkbox" name="events" value="Photography" data-fee="100"> Photography (Click of the Month) - ₹100</label>
+            <label><input type="checkbox" name="events" value="News" data-fee="70"> News (National/International/Local) - ₹70</label>
+            <label><input type="checkbox" name="events" value="Upcoming college Event" data-fee="50"> Upcoming College Event - ₹50</label>
+            <label><input type="checkbox" name="events" value="Club achievements" data-fee="50"> Club Achievements & Info - ₹50</label>
+            <label><input type="checkbox" name="events" value="Placement information" data-fee="100"> Placement Info (Company-specific) - ₹100</label>
+            <label><input type="checkbox" name="events" value="Drama writing" data-fee="80"> Drama Writing (Skits, Dialogues) - ₹80</label>
+        </div>
+
+        <h2>Payment</h2>
+        <div class="payment">
+            <label><input type="radio" name="payment" value="upi_qr" checked> Pay via UPI QR Code</label>
+            <div class="qr-container" id="qrContainer">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=example@upi&pn=SPIKES2026&cu=INR" alt="UPI QR Code">
+            </div>
+            <label><input type="radio" name="payment" value="upi_id"> Pay via UPI ID</label>
+            <input type="text" id="upiId" placeholder="Enter your UPI ID" disabled>
+        </div>
+
+        <h3>Total Fee: ₹<span id="totalFee">0</span></h3>
+
+        <button type="submit">Submit Registration</button>
+    </form>
+</div>
+
+<script>
+function goToPage2() {
+    const form1 = document.getElementById('formPage1');
+    if (form1.checkValidity()) {
+        document.getElementById('page1').style.display = 'none';
+        document.getElementById('page2').style.display = 'block';
+        updateFee();
+        showQRCode();
+    } else {
+        form1.reportValidity();
+    }
+}
+
+// Update total fee dynamically
+const eventCheckboxes = document.querySelectorAll('input[name="events"]');
+eventCheckboxes.forEach(cb => {
+    cb.addEventListener('change', updateFee);
+});
+
+function updateFee() {
+    let total = 0;
+    eventCheckboxes.forEach(cb => {
+        if(cb.checked){
+            total += parseInt(cb.dataset.fee);
+        }
+    });
+    document.getElementById('totalFee').textContent = total;
+}
+
+// Payment option handling
+const paymentRadios = document.querySelectorAll('input[name="payment"]');
+paymentRadios.forEach(radio => {
+    radio.addEventListener('change', showQRCode);
+});
+
+function showQRCode(){
+    const qrContainer = document.getElementById('qrContainer');
+    const upiInput = document.getElementById('upiId');
+    const selected = document.querySelector('input[name="payment"]:checked').value;
+    if(selected === 'upi_qr'){
+        qrContainer.style.display = 'block';
+        upiInput.disabled = true;
+    } else {
+        qrContainer.style.display = 'none';
+        upiInput.disabled = false;
+    }
+}
+
+// Handle final submission
+document.getElementById('formPage2').addEventListener('submit', function(e){
+    e.preventDefault();
+    const name = document.getElementById('name').value;
+    const college = document.getElementById('college').value;
+    const email = document.getElementById('email').value;
+    const mobile = document.getElementById('mobile').value;
+    const selectedEvents = Array.from(document.querySelectorAll('input[name="events"]:checked')).map(cb => cb.value);
+    const totalFee = document.getElementById('totalFee').textContent;
+    const paymentMethod = document.querySelector('input[name="payment"]:checked').value === 'upi_id' ? document.getElementById('upiId').value : 'UPI QR Code';
+    
+    alert(`Registration Successful!\n\nName: ${name}\nCollege: ${college}\nEmail: ${email}\nMobile: ${mobile}\n\nEvents: ${selectedEvents.join(', ')}\nTotal Fee: ₹${totalFee}\nPayment Method: ${paymentMethod}`);
+});
+</script>
+
+</body>
+</html>
